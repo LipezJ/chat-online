@@ -1,0 +1,140 @@
+* {
+    margin: 0px;
+    font-size: medium;
+    font-family: 'Roboto Slab', serif;
+    font-weight: 400;
+}
+body {
+    overflow: hidden;
+}
+button {
+    width: 30%;
+    border: none;
+    border-radius: 5px;
+    background-color: #4c346b;
+    color: #ffffff;
+    padding: 5px;
+}
+button:active {
+    background-color: #241933;
+}
+main {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+}
+#chats {
+    width: 25%;
+    display: flex;
+    flex-direction: column;
+}
+#head {
+    height: 10vh;
+    background-color: #301e4e;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: x-large;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 40px;
+}
+#logoutb {
+    width: auto;
+}
+#chatsc {
+    height: 80vh;
+    background-color: #463366;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: center;
+    padding: 20px 0px;
+    overflow-y: scroll;
+}
+.chat {
+    background-color: #67568c;
+    color: #ffffff;
+    padding: 5px 10px;
+    width: 70%;
+    border-radius: 5px;
+}
+#createc{
+    height: 10vh;
+    background-color: #301e4e;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#createb {
+    width: 70%;
+}
+#chat {
+    width: 75%;
+    display: flex;
+    flex-direction: column;
+}
+#someone {
+    height: 10vh;
+    background-color: #301e4e;
+    color: #ffffff;
+    font-size: large;
+    display: flex;
+    padding: 0px 50px;
+    align-items: center;
+}
+#posts {
+    height: 80vh;
+    background-color: #f4effc;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+#text{
+    height: 10vh;
+    background-color: #67568c;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+#posttext {
+    width: 60vw;
+    height: 2rem;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+#sendb {
+    width: auto;
+    height: 2.5rem;
+}
+.posts {
+    display: flex;
+    flex-direction: row;
+    gap: 5px;
+    width: auto;
+    height: auto;
+    background-color: #67568c;
+    color: #ffffff;
+    border-radius: 5px;
+    padding: 5px 10px;
+}
+.owner {
+    font-weight: 500;
+}
+div::-webkit-scrollbar {
+    width: 0.3em;
+}
+div::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
+div::-webkit-scrollbar-thumb {
+    background-color: #67568c;
+}

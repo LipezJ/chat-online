@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style-chat.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500&display=swap" rel="stylesheet">
+    <title>Chat</title>
+</head>
+<body>
+    <main>
+        <div id="chats">
+            <div id="head">
+                <div id="ownner">Lipez</div>
+                <button title="logout" type="button" id="logoutb">Logout</button>
+            </div>
+            <div id="chatsc"></div>
+            <div id="createc">
+                <button title="create" type="button" id="createb">Create</button>
+            </div>
+        </div>
+        <div id="chat">
+            <div id="someone">Someone</div>
+            <div id="posts"></div>
+            <div id="text">
+                <input type="text" title="post" id="posttext">
+                <button type="button" title="button" id="sendb">Send</button>
+            </div>
+        </div>
+    </main>
+    <script src="./scripts/chat.js" type="module"></script>
+</body>
+</html>
