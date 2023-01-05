@@ -1,3 +1,9 @@
+import { socket } from "./public.js"
+
+const data_ = {'user': localStorage.getItem('user'), 'pass': localStorage.getItem('pass')}
+socket.emit('login', data_)
+document.querySelector('#ownner').innerHTML = data_.user
+
 const postReg = /[a-zA-z0-9\s.,:;-_"'!¡¿?()]/g
 
 const post = (post, user) => {
