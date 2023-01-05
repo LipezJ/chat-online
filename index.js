@@ -36,6 +36,11 @@ io.on("connection", (socket) => {
       console.log('ha iniciado sesion!')
     }
   })
+  socket.on('logout', (data) => {
+    if (data.user in users && data.pass == users[data.user].pass && users[data.user].logued) {
+      users[data.user].logued = false
+    }
+  })
 });
 
 console.log("3000")

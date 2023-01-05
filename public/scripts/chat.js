@@ -34,7 +34,13 @@ function enter(e){
 function createChat(){
     document.querySelector('#chatsc').innerHTML += chat('Lopez')
 }
+function logout(){
+    localStorage.clear()
+    socket.emit('logout', data_)
+    location.href = location.origin
+}
 
+document.querySelector('#logoutb').addEventListener('click', logout)
 document.querySelector('#createb').addEventListener('click', createChat)
 document.querySelector('#sendb').addEventListener('click', send)
 document.querySelector('#posttext').addEventListener('keyup', enter)
