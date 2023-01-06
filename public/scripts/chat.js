@@ -1,7 +1,6 @@
 import { socket } from "./public.js"
 
 const data_ = {'user': localStorage.getItem('user'), 'pass': localStorage.getItem('pass')}
-socket.emit('login', data_)
 document.querySelector('#ownner').innerHTML = data_.user
 
 const postReg = /[a-zA-z0-9\s.,:;-_"'!¡¿?()]/g
@@ -27,20 +26,38 @@ function send(e){
     document.querySelector('#posttext').value = ''
     if (!postm.match(postReg)) return 0
     document.querySelector('#posts').innerHTML += post(postm, 'yo')
+
 }
 function enter(e){
     if (e.keyCode == 13) send(e)
 }
-function createChat(){
-    document.querySelector('#chatsc').innerHTML += chat('Lopez')
-}
 function logout(){
     localStorage.clear()
     socket.emit('logout', data_)
+    socket.disconnect()
     location.href = location.origin
 }
+function createChat(){
+    let chat_ = document.querySelector('#createi').value
+    socket.emit('createChat', {chat: chat_})
+}
+function newChat(data){
+    let chat_ = document.querySelector('#createi').value
+    document.querySelector('#chatsc').innerHTML += chat(!data.chat ? chat_:data.chat)
+}
+function join(){
+    let chat_ = document.querySelector('#createi').value
+    let exist = false
+    document.querySelectorAll('.chat').forEach((i) => {
+        if (i == chat_) exist = true
+    })
+    if (!exist) socket.emit('join', {chat: chat_})
+}
 
-document.querySelector('#logoutb').addEventListener('click', logout)
+socket.on('newChat', data => newChat(data))
+
+document.querySelector('#joinb').addEventListener('click', join)
 document.querySelector('#createb').addEventListener('click', createChat)
+document.querySelector('#logoutb').addEventListener('click', logout)
 document.querySelector('#sendb').addEventListener('click', send)
 document.querySelector('#posttext').addEventListener('keyup', enter)

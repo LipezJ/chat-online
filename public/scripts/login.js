@@ -1,6 +1,6 @@
 import { socket } from "./public.js"
 
-socket.on('loginSucessfull', data => loginSucessfull(data))
+socket.on('loginSucess', data => loginSucessfull(data))
 
 function switchModo(){
     let modo = document.querySelector('.singup').style.display
@@ -20,7 +20,7 @@ function loginTest(e) {
     if (e.target.innerHTML == 'Sing up') {
         data['email'] = document.querySelector('#emaili').value
     }
-    socket.emit('LoginTest', data)
+    socket.emit('loginReq', data)
     console.log(data)
 }
 
