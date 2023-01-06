@@ -26,7 +26,8 @@ function singupReq(data, socket) {
 function joinReq(data, socket) {
     console.log('joinReq', posts)
     if (data.chat in posts && data.user in users) {
-        posts[data.chat].users.push(data.user)
+        console.log(!(data.user in posts[data.chat].users))
+        if (!(data.user in posts[data.chat].users)) posts[data.chat].users.push(data.user)
         socket.join(data.chat)
         socket.emit('joinSucess', posts[data.chat])
     } else socket.emit('alert', {ms: 'join error'})
@@ -45,7 +46,7 @@ function sendReq(data, socket, io) {
         let today = new Date()
         let now = today.getTime().toString()
         console.log('se envio un mensaje', data)
-        posts[data.chat].posts[now] = {user: data.user, post: data.post}
+        posts[data.chat].posts[data.chat + now] = {user: data.user, post: data.post}
         io.to(data.chat).emit('sendSucess', data)
     } else socket.emit('alert', {ms: 'send error'})
 }
