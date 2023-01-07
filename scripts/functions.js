@@ -2,15 +2,19 @@ import { readFile, writeFile } from "fs/promises";
 
 const emailReg = /^[a-zA-Z0-9.-_]+@[a-zA-Z0-9.-_]+\.(com|co|edu)+$/gm
 
-const filesrc = ['./data/posts.json', './data/users.json']
+const filesrc = ['./data/posts.json', './data/users.json', './data/sockets.json']
 let filem = await readFile(filesrc[0], 'utf-8')
 let fileu = await readFile(filesrc[1], 'utf-8')
+let files = await readFile(filesrc[2], 'utf-8')
 let posts = JSON.parse(filem)
 let users = JSON.parse(fileu)
+let sockets = JSON.parse(files)
 
 function loginReq(data, socket) {
     console.log('loginReq', data)
-    if (data.user in users && data.pass == users[data.user].pass) {
+    console.log(Object.values(sockets))
+    if (data.user in users && data.pass == users[data.user].pass && Object.values(sockets).indexOf(data.user) < 0) {
+        sockets[socket.id] = data.user
         console.log('ha iniciado sesion', data.user)
         socket.emit('loginSucess', {user: data.user})
     } else socket.emit('alert', {ms: 'login error'})
@@ -19,7 +23,7 @@ function singupReq(data, socket) {
     console.log('singupReq', data)
     console.log(!(data.user in users), data.pass, data.email.match(emailReg))
     if (!(data.user in users) && data.pass && data.email.match(emailReg)) {
-        users[data.user] = {pass: data.pass, logued: false}
+        users[data.user] = {pass: data.pass}
         loginReq({user: data.user, pass: data.pass}, socket)
     } else socket.emit('alert', {ms: 'singup error'})
 }
@@ -51,8 +55,13 @@ function sendReq(data, socket, io) {
     } else socket.emit('alert', {ms: 'send error'})
 }
 
+function dSocket(socket) {
+    console.log(sockets[socket.id], 'desconectado')
+    delete sockets[socket.id]
+}
+
 setInterval(() => {
-    console.log(posts)
+    console.log(posts, sockets)
 }, 5000)
 
-export { loginReq, singupReq, joinReq, createReq, sendReq }
+export { loginReq, singupReq, joinReq, createReq, sendReq, dSocket }

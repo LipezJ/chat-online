@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http"
 import path from "path";
-import { loginReq, singupReq, joinReq, createReq, sendReq } from './scripts/functions.js'
+import { loginReq, singupReq, joinReq, createReq, sendReq, dSocket } from './scripts/functions.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -23,11 +23,13 @@ io.on("connection", (socket) => {
   socket.on('joinReq', (data) => joinReq(data, socket))
   socket.on('createReq', (data) => createReq(data, socket))
   socket.on('sendReq', (data) => sendReq(data, socket, io))
+  socket.on('dSocket', e => dSocket(socket))
+  socket.on('disconnect', e => dSocket(socket))
 });
 
-setInterval(() => {
-  console.log(io.sockets.adapter.rooms)
-}, 15000)
+// setInterval(() => {
+//   console.log(io.sockets.adapter.rooms)
+// }, 15000)
 
 console.log("4000")
 server.listen(4000);
