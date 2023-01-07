@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http"
 import path from "path";
-import { loginReq, singupReq, joinReq, createReq, sendReq, dSocket } from './scripts/functions.js'
+import { login, singup, joinReq, createReq, sendReq, logout } from './scripts/functions.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -18,13 +18,14 @@ const io = new Server(server)
 
 io.on("connection", (socket) => {
   console.log(socket.id)
-  socket.on('loginReq', (data) => loginReq(data, socket))
-  socket.on('singupReq', (data) => singupReq(data, socket))
+  socket.on('login', (data) => login(data, socket))
+  socket.on('singup', (data) => singup(data, socket))
+  socket.on('logout', e => logout(socket))
+  socket.on('disconnect', e => logout(socket))
+
   socket.on('joinReq', (data) => joinReq(data, socket))
   socket.on('createReq', (data) => createReq(data, socket))
   socket.on('sendReq', (data) => sendReq(data, socket, io))
-  socket.on('dSocket', e => dSocket(socket))
-  socket.on('disconnect', e => dSocket(socket))
 });
 
 // setInterval(() => {
