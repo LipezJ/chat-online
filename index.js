@@ -8,12 +8,9 @@ const app = express()
 const server = http.createServer(app)
 const io = new Server(server)
 
-// app.use(express.static('public'))
-// app.get('/', (req, res) => {
-//   res.sendFile(path.join(process.cwd(), '/public/login.html'))
-// })
+// app.use(express.static('build'))
 // app.get('/chat', (req, res) => {
-//   res.sendFile(path.join(process.cwd(), '/public/chat.html'))
+//   res.sendFile(path.join(process.cwd(), '/build/index.html'))
 // })
 
 io.on("connection", (socket) => {
