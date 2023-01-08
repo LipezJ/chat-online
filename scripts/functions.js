@@ -26,7 +26,6 @@ async function singup(data, socket) {
 }
 async function logout(socket) {
     if (socket.token) {
-        console.log(socket.id, socket.token, socket)
         sockets[socket.token].socket = ''
         delete socket.token
         await writeFile(filesrc[1], JSON.stringify(sockets))
@@ -61,8 +60,8 @@ function sendReq(data, socket, io) {
     } else socket.emit('alert', {ms: 'send error'})
 }
 
-setInterval(() => {
-    console.log(posts, sockets)
-}, 15000)
+// setInterval(() => {
+//     console.log(posts, sockets)
+// }, 15000)
 
 export { login, singup, logout, joinReq, createReq, sendReq }
