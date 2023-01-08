@@ -1,4 +1,5 @@
 import { readFile, writeFile  } from "fs/promises";
+import { v4 as uuidv4 } from 'uuid'
 
 const filesrc = ['./data/posts.json', './data/sockets.json']
 let filem = await readFile(filesrc[0], 'utf-8')
@@ -24,9 +25,12 @@ async function singup(data, socket) {
     await writeFile(filesrc[1], JSON.stringify(sockets))
 }
 async function logout(socket) {
-    sockets[socket.token].socket = ''
-    delete socket.token
-    await writeFile(filesrc[1], JSON.stringify(sockets))
+    if (socket.token) {
+        console.log(socket.id, socket.token, socket)
+        sockets[socket.token].socket = ''
+        delete socket.token
+        await writeFile(filesrc[1], JSON.stringify(sockets))
+    }
 }
 
 function createReq(data, socket) {
@@ -52,7 +56,7 @@ function sendReq(data, socket, io) {
     console.log('sendReq')
     if (socket.token && data.chat in posts) {
         console.log('se envio un mensaje', data)
-        posts[data.chat].posts[Date.now()] = {user: data.user, post: data.post}
+        posts[data.chat].posts[uuidv4()] = {user: data.user, post: data.post}
         io.to(data.chat).emit('sendSucess', data)
     } else socket.emit('alert', {ms: 'send error'})
 }
