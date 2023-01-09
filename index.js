@@ -8,10 +8,10 @@ const app = express()
 const server = http.createServer(app)
 const io = new Server(server)
 
-// app.use(express.static('build'))
-// app.get('/chat', (req, res) => {
-//   res.sendFile(path.join(process.cwd(), '/build/index.html'))
-// })
+app.use(express.static('build'))
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(process.cwd(), '/build/index.html'))
+})
 
 io.on("connection", (socket) => {
   console.log(socket.id)
