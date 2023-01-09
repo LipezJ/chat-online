@@ -1,5 +1,7 @@
 import { readFile, writeFile  } from "fs/promises";
 import { v4 as uuidv4 } from 'uuid'
+import { auth } from "./firebase/config";
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
 
 const filesrc = ['./data/posts.json', './data/sockets.json']
 let filem = await readFile(filesrc[0], 'utf-8')
@@ -8,20 +10,25 @@ let posts = JSON.parse(filem)
 let sockets = JSON.parse(files)
 
 async function login(data, socket) {
-    console.log(data)
-    socket['token'] = data.token
-    if (sockets[socket.token].socket !== '') {
-        socket.emit('alert', {ms: 'ya ha iniciado sesion'})
-        return 0
-    }
-    sockets[data.token].socket = socket.id
-    socket.emit('loginSucess', {user: sockets[data.token].user})
+    signInWithEmailAndPassword(auth, data.email, data.pass)
+    .then((userCredential) => {
+        socket['token'] = userCredential.user.uid
+        if (sockets[socket.token].socket !== '') {
+            socket.emit('alert', {ms: 'ya ha iniciado sesion'})
+            return 0
+        }
+        sockets[data.token].socket = socket.id
+        socket.emit('loginSucess', {user: sockets[data.token].user})
+    }).catch((err) => socket.emit('alert', {ms: 'longin error'}))
     await writeFile(filesrc[1], JSON.stringify(sockets))
 }
 async function singup(data, socket) {
-    socket['token'] = data.token
-    sockets[data.token] = {user: data.user, socket: socket.id}
-    socket.emit('loginSucess', {user: data.user})
+    createUserWithEmailAndPassword(auth, data.email, data.pass)
+    .then((userCredential) => {
+        socket['token'] = userCredential.user.uid
+        sockets[data.token] = {user: data.user, socket: socket.id}
+        socket.emit('loginSucess', {user: data.user})
+    }).catch((err) => socket.emit('alert', {ms: 'sing up error'}))
     await writeFile(filesrc[1], JSON.stringify(sockets))
 }
 async function logout(socket) {
