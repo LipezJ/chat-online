@@ -1,7 +1,7 @@
 import { readFile, writeFile  } from "fs/promises";
 import { v4 as uuidv4 } from 'uuid'
-import { auth } from "./firebase/config";
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth";
+import { app } from "./firebase/config.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
 
 const filesrc = ['./data/posts.json', './data/sockets.json']
 let filem = await readFile(filesrc[0], 'utf-8')
@@ -9,7 +9,10 @@ let files = await readFile(filesrc[1], 'utf-8')
 let posts = JSON.parse(filem)
 let sockets = JSON.parse(files)
 
+const auth = getAuth(app)
+
 async function login(data, socket) {
+    console.log(data)
     signInWithEmailAndPassword(auth, data.email, data.pass)
     .then((userCredential) => {
         socket['token'] = userCredential.user.uid
@@ -17,9 +20,10 @@ async function login(data, socket) {
             socket.emit('alert', {ms: 'ya ha iniciado sesion'})
             return 0
         }
-        sockets[data.token].socket = socket.id
-        socket.emit('loginSucess', {user: sockets[data.token].user})
-    }).catch((err) => socket.emit('alert', {ms: 'longin error'}))
+        sockets[socket.token].socket = socket.id
+        console.log(sockets[socket.token].user)
+        socket.emit('loginSucess', {user: sockets[socket.token].user})
+    }).catch((err) => {socket.emit('alert', {ms: err}); console.log(err)})
     await writeFile(filesrc[1], JSON.stringify(sockets))
 }
 async function singup(data, socket) {
@@ -33,8 +37,10 @@ async function singup(data, socket) {
 }
 async function logout(socket) {
     if (socket.token) {
-        sockets[socket.token].socket = ''
-        delete socket.token
+        signOut(auth).then(() => {
+            sockets[socket.token].socket = ''
+            delete socket.token
+        })
         await writeFile(filesrc[1], JSON.stringify(sockets))
     }
 }
