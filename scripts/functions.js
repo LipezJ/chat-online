@@ -55,11 +55,13 @@ function createReq(data, socket) {
 function joinReq(data, socket) {
     console.log('joinReq', posts)
     socket.leaveAll()
+    delete socket.lastPage
     if (data.chat in posts && socket.token) {
         if (posts[data.chat].users.indexOf(sockets[socket.token].user) < 0) {
             posts[data.chat].users.push(sockets[socket.token].user)
         }
         socket.join(data.chat)
+        socket['lastPage'] = posts[data.chat].pages - 1
         console.log("enviando", posts[data.chat].posts[posts[data.chat].pages])
         socket.emit('joinSucess', posts[data.chat].posts[posts[data.chat].pages])
     } else socket.emit('alert', {ms: 'join error'})
@@ -79,9 +81,16 @@ function sendReq(data, socket, io) {
         io.to(data.chat).emit('sendSucess', data)
     } else socket.emit('alert', {ms: 'send error'})
 }
+function nextPage(socket, data) {
+    if (socket.lastPage >= 0) {
+        socket.emit('sendPage', posts[data.chat].posts[socket.lastPage])
+        socket.lastPage --
+        console.log(posts[data.chat].posts[posts[socket.lastPage]])
+    }
+}
 
  setInterval(() => {
      console.log(posts)
 }, 10000)
 
-export { login, singup, logout, joinReq, createReq, sendReq }
+export { login, singup, logout, joinReq, createReq, sendReq, nextPage }
