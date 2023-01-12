@@ -12,27 +12,26 @@ let sockets = JSON.parse(files)
 const auth = getAuth(app)
 
 async function login(data, socket) {
-    console.log(data)
     signInWithEmailAndPassword(auth, data.email, data.pass)
     .then((userCredential) => {
         socket['token'] = userCredential.user.uid
         if (sockets[socket.token].socket !== '') {
+            delete socket.token
             socket.emit('alert', {ms: 'ya ha iniciado sesion'})
             return 0
         }
         sockets[socket.token].socket = socket.id
-        console.log(sockets[socket.token].user)
         socket.emit('loginSucess', {user: sockets[socket.token].user})
-    }).catch((err) => {socket.emit('alert', {ms: err}); console.log(err)})
+    }).catch((err) => {socket.emit('alert', {ms: err})})
     await writeFile(filesrc[1], JSON.stringify(sockets))
 }
 async function singup(data, socket) {
     createUserWithEmailAndPassword(auth, data.email, data.pass)
     .then((userCredential) => {
         socket['token'] = userCredential.user.uid
-        sockets[data.token] = {user: data.user, socket: socket.id}
+        sockets[socket.token] = {user: data.user, socket: socket.id, chats: []}
         socket.emit('loginSucess', {user: data.user})
-    }).catch((err) => socket.emit('alert', {ms: 'sing up error'}))
+    }).catch((err) => socket.emit('alert', {ms: err}))
     await writeFile(filesrc[1], JSON.stringify(sockets))
 }
 async function logout(socket) {
@@ -46,14 +45,12 @@ async function logout(socket) {
 }
 
 function createReq(data, socket) {
-    console.log('createReq', data)
     if (data.chat.length > 5 && !(data.chat in posts) && socket.token) {
         posts[data.chat] = {users:[], posts:[{}], pages:0, postLast: 0}
         joinReq(data, socket)
     } else socket.emit('alert', {ms: 'create error'})
 }
 function joinReq(data, socket) {
-    console.log('joinReq', posts)
     socket.leaveAll()
     delete socket.lastPage
     if (data.chat in posts && socket.token) {
@@ -62,13 +59,20 @@ function joinReq(data, socket) {
         }
         socket.join(data.chat)
         socket['lastPage'] = posts[data.chat].pages - 1
-        console.log("enviando", posts[data.chat].posts[posts[data.chat].pages])
-        socket.emit('joinSucess', posts[data.chat].posts[posts[data.chat].pages])
+        let new_ = sockets[socket.token].chats.indexOf(data.chat) < 0
+        socket.emit('joinSucess', {posts: posts[data.chat].posts[posts[data.chat].pages], chat: data.chat, new: new_})
     } else socket.emit('alert', {ms: 'join error'})
+}
+function addChat(data, socket) {
+    if (sockets[socket.token].chats.indexOf(data.chat) < 0 && data.chat in posts && socket.token) {
+        sockets[socket.token].chats.push(data.chat)
+    }
+}
+function updateChats(socket) {
+    socket.emit('updateChatsSucess', {chats: sockets[socket.token].chats})
 }
 
 function sendReq(data, socket, io) {
-    console.log('sendReq')
     if (socket.token && data.chat in posts) {
         if (posts[data.chat].postLast > 30) {
             posts[data.chat].pages ++
@@ -76,7 +80,6 @@ function sendReq(data, socket, io) {
             posts[data.chat].posts.push({})
         }
         posts[data.chat].postLast ++
-        console.log(posts[data.chat].posts[posts[data.chat].pages],posts[data.chat])
         posts[data.chat].posts[posts[data.chat].pages][Date.now()] = {user: data.user, post: data.post}
         io.to(data.chat).emit('sendSucess', data)
     } else socket.emit('alert', {ms: 'send error'})
@@ -85,12 +88,11 @@ function nextPage(socket, data) {
     if (socket.lastPage >= 0) {
         socket.emit('sendPage', posts[data.chat].posts[socket.lastPage])
         socket.lastPage --
-        console.log(posts[data.chat].posts[posts[socket.lastPage]])
     }
 }
 
  setInterval(() => {
-     console.log(posts)
+     console.log(posts, sockets)
 }, 10000)
 
-export { login, singup, logout, joinReq, createReq, sendReq, nextPage }
+export { login, singup, logout, joinReq, createReq, sendReq, nextPage, addChat, updateChats }

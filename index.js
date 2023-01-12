@@ -2,7 +2,7 @@ import express from "express";
 import { Server } from "socket.io";
 import http from "http"
 import path from "path";
-import { login, singup, joinReq, createReq, sendReq, logout, nextPage } from './scripts/functions.js'
+import { login, singup, joinReq, createReq, sendReq, logout, nextPage, addChat, updateChats } from './scripts/functions.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -22,6 +22,8 @@ io.on("connection", (socket) => {
 
   socket.on('joinReq', (data) => joinReq(data, socket))
   socket.on('createReq', (data) => createReq(data, socket))
+  socket.on('addChats', (data) => addChat(data, socket))
+  socket.on('updateChats', (data) => updateChats(socket))
   socket.on('sendReq', (data) => sendReq(data, socket, io))
   socket.on('nextPage', (data) => nextPage(socket, data))
 });
