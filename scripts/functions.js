@@ -69,7 +69,7 @@ function addChat(data, socket) {
     }
 }
 function updateChats(socket) {
-    if (sockets[socket.token].chats) {
+    if (socket.token) {
         socket.emit('updateChatsSucess', {chats: sockets[socket.token].chats}) 
     }
 }
