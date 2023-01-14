@@ -82,7 +82,7 @@ function sendReq(data, socket, io) {
             posts[data.chat].posts.push({})
         }
         posts[data.chat].postLast ++
-        posts[data.chat].posts[posts[data.chat].pages][Date.now()] = {user: data.user, post: data.post}
+        posts[data.chat].posts[posts[data.chat].pages][uuidv4()] = {user: data.user, post: data.post}
         io.to(data.chat).emit('sendSucess', data)
     } else socket.emit('alert', {ms: 'send error'})
 }
@@ -94,7 +94,7 @@ function nextPage(socket, data) {
 }
 
  setInterval(() => {
-     console.log(posts, sockets)
-}, 10000)
+    console.log(posts['global'].posts, posts['global'].lastPage, posts['global'].pages)
+}, 25000)
 
 export { login, singup, logout, joinReq, createReq, sendReq, nextPage, addChat, updateChats }
