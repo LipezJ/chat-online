@@ -9,12 +9,11 @@ const server = http.createServer(app)
 const io = new Server(server)
 
 app.use(express.static('build'))
-app.get('/chat', (req, res) => {
+app.get('/', (req, res) => {
   res.sendFile(path.join(process.cwd(), '/build/index.html'))
 })
 
 io.on("connection", (socket) => {
-  console.log(socket.id)
   socket.on('login', (data) => login(data, socket))
   socket.on('singup', (data) => singup(data, socket))
   socket.on('logout', e => logout(socket))
@@ -28,5 +27,5 @@ io.on("connection", (socket) => {
   socket.on('nextPage', (data) => nextPage(socket, data))
 });
 
-console.log("4000")
-server.listen(4000);
+console.log(process.env.PORT || 4000)
+server.listen(process.env.PORT || 4000);

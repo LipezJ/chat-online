@@ -86,7 +86,6 @@ function updateChats(socket) {
 }
 
 async function sendReq(data, socket, io) {
-    console.log(data)
     if (socket.token && data.chat in posts) {
         if (posts[data.chat].postLast > 30) {
             posts[data.chat].pages ++
