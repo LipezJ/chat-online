@@ -34,13 +34,13 @@ function singup(data, socket) {
         await writeFile(filesrc[1], JSON.stringify(sockets))
     }).catch((err) => socket.emit('alert', {ms: err}))
 }
-async function logout(socket) {
+function logout(socket) {
     if (socket.token) {
-        signOut(auth).then(() => {
+        signOut(auth).then(async () => {
             sockets[socket.token].socket = ''
             delete socket.token
+            await writeFile(filesrc[1], JSON.stringify(sockets))
         })
-        await writeFile(filesrc[1], JSON.stringify(sockets))
     }
 }
 
@@ -58,9 +58,19 @@ async function joinReq(data, socket) {
             posts[data.chat].users.push(sockets[socket.token].user)
         }
         socket.join(data.chat)
-        socket['lastPage'] = posts[data.chat].pages - 1
+        socket['lastPage'] = 
+            posts[data.chat].pages > 0
+                ? posts[data.chat].pages - 2
+                : posts[data.chat].pages - 1
         let new_ = sockets[socket.token].chats.indexOf(data.chat) < 0
-        socket.emit('joinSucess', {posts: posts[data.chat].posts[posts[data.chat].pages], chat: data.chat, new: new_})
+        let postSend =
+            posts[data.chat].pages > 0
+                ? {
+                      ...posts[data.chat].posts[posts[data.chat].pages - 1],
+                      ...posts[data.chat].posts[posts[data.chat].pages],
+                  }
+                : posts[data.chat].posts[posts[data.chat].pages];
+        socket.emit('joinSucess', {posts: postSend, chat: data.chat, new: new_})
         await writeFile(filesrc[1], JSON.stringify(sockets))
     } else socket.emit('alert', {ms: 'join error'})
 }
@@ -76,6 +86,7 @@ function updateChats(socket) {
 }
 
 async function sendReq(data, socket, io) {
+    console.log(data)
     if (socket.token && data.chat in posts) {
         if (posts[data.chat].postLast > 30) {
             posts[data.chat].pages ++
