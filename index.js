@@ -28,9 +28,5 @@ io.on("connection", (socket) => {
   socket.on('nextPage', (data) => nextPage(socket, data))
 });
 
-// setInterval(() => {
-//   console.log(io.sockets.adapter.rooms)
-// }, 15000)
-
 console.log("4000")
 server.listen(4000);
