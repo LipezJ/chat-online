@@ -29,7 +29,7 @@ function singup(data, socket) {
     createUserWithEmailAndPassword(auth, data.email, data.pass)
     .then( async (userCredential) => {
         socket['token'] = userCredential.user.uid
-        sockets[socket.token] = {user: data.user, socket: socket.id, chats: []}
+        sockets[socket.token] = {user: data.user, socket: socket.id, chats: ['global']}
         socket.emit('loginSucess', {user: data.user})
         await writeFile(filesrc[1], JSON.stringify(sockets))
     }).catch((err) => socket.emit('alert', {ms: err}))
@@ -94,7 +94,7 @@ async function sendReq(data, socket, io) {
             await writeFile(filesrc[0], JSON.stringify(posts))
         }
         posts[data.chat].postLast ++
-        posts[data.chat].posts[posts[data.chat].pages][uuidv4()] = {user: data.user, post: data.post}
+        posts[data.chat].posts[posts[data.chat].pages][uuidv4()] = {user: data.user, post: data.post, date: data.date}
         io.to(data.chat).emit('sendSucess', data)
     } else socket.emit('alert', {ms: 'send error'})
 }
