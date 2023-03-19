@@ -1,7 +1,8 @@
-import { readFile, writeFile  } from "fs/promises";
+import { readFile, writeFile  } from "fs/promises"
 import { v4 as uuidv4 } from 'uuid'
-import { app } from "./firebase/config.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth";
+import { app } from "./firebase/config.js"
+import { readChat } from "./db.js"
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth"
 
 const filesrc = ['./data/posts.json', './data/sockets.json']
 let filem = await readFile(filesrc[0], 'utf-8')
@@ -69,7 +70,7 @@ async function joinReq(data, socket) {
                       ...posts[data.chat].posts[posts[data.chat].pages - 1],
                       ...posts[data.chat].posts[posts[data.chat].pages],
                   }
-                : posts[data.chat].posts[posts[data.chat].pages];
+                : posts[data.chat].posts[posts[data.chat].pages]
         socket.emit('joinSucess', {posts: postSend, chat: data.chat, new: new_})
         await writeFile(filesrc[1], JSON.stringify(sockets))
     } else socket.emit('alert', {ms: 'join error'})
