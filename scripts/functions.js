@@ -21,7 +21,6 @@ async function login(data, socket) {
             socket.emit('alert', {ms: 'ya ha iniciado sesion'})
             return 0
         }
-        console.log('ya casi')
         sockets[socket.token] = socket.id
         await readUser(socket.token).then((user) => {
             socket.emit('loginSucess', {user: user.user})
@@ -65,7 +64,6 @@ async function joinReq(data, socket) {
             socket.join(data.chat)
             socket['lastPage'] = chat.pages - 1
             let new_ = user.chats.indexOf(data.chat) < 0
-            console.log(chat.posts != null ? Object.keys(chat.posts).length : '')
             let postSend = posts[data.chat].lastPage
             if (chat.pages > 0) {
                 await readChat(data.chat, chat.pages-1).then(page => {

@@ -17,7 +17,6 @@ async function createChat(name, user) {
 }
 async function updateChat(name, lastPage, page) {
     try {
-        console.log(page + 1)
         await updateDoc(doc(db, 'chats', name), { [(page + 1)+'a']: lastPage })
         await updateDoc(doc(db, 'chatInfo', name), { 'pages': increment(1) })
     } catch (e) {
@@ -26,9 +25,7 @@ async function updateChat(name, lastPage, page) {
 }
 async function readChat(name, page) {
     try {
-        console.log(page.toString())
         const query = await getDoc(doc(db, 'chats', name))
-        console.log(page)
         return query.data()[page+'a']
     } catch (e) {
         console.log('error reading document (readChat): ', e)
@@ -79,7 +76,6 @@ async function readUser(user) {
         if (query.exists()) {
             return query.data()
         } else {
-            console.log('user doesnt exist')
             return null
         }
     } catch (e) {
@@ -94,7 +90,6 @@ async function readUserChat(user, chat) {
         if (queryUser.exists() && queryChat.exists()) {
             return {user: queryUser.data(), chat: queryChat.data()}
         } else {
-            console.log('user doesnt exist')
             return {user: null, chat: null}
         }
     } catch (e) {
