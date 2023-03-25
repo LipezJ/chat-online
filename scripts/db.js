@@ -15,10 +15,15 @@ async function createChat(name, user) {
         console.log('error reading document: ', e)
     }
 }
-async function updateChat(name, lastPage, page) {
+async function updateChat(name, lastPage, pages) {
     try {
-        await updateDoc(doc(db, 'chats', name), { [(page + 1)+'a']: lastPage })
-        await updateDoc(doc(db, 'chatInfo', name), { 'pages': increment(1) })
+        console.log(pages)
+        updateDoc(doc(db, 'chats', name), {
+            [pages+'a']: lastPage
+        })
+        updateDoc(doc(db, 'chatInfo', name), {
+            pages: increment(1)
+        })
     } catch (e) {
         console.log('error updating document: ', e)
     }
@@ -26,6 +31,7 @@ async function updateChat(name, lastPage, page) {
 async function readChat(name, page) {
     try {
         const query = await getDoc(doc(db, 'chats', name))
+        console.log(query.data()[page+'a'])
         return query.data()[page+'a']
     } catch (e) {
         console.log('error reading document (readChat): ', e)

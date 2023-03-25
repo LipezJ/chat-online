@@ -1,5 +1,5 @@
 import { readFile, writeFile  } from "fs/promises"
-import { v4 as uuidv4 } from 'uuid'
+import { v1 as uuidv1 } from 'uuid'
 import { app } from "./firebase/config.js"
 import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "firebase/auth"
 import { addUser, readUser, createChat, addUserChat, readChat, updateChat, readUserChat } from "./db.js"
@@ -50,7 +50,7 @@ function logout(socket) {
 
 function createReq(data, socket) {
     if (data.chat.length > 5 && !(data.chat in posts) && socket.token) {
-        posts[data.chat] = {lastPage:{}, postLast: 0}
+        posts[data.chat] = {lastPage:{}, postLast: 0, pages: 0}
         createChat(data.chat)
         joinReq(data, socket)
     } else socket.emit('alert', {ms: 'create error'})
@@ -93,15 +93,16 @@ async function updateChats(socket) {
 
 async function sendReq(data, socket, io) {
     if (socket.token && data.chat in posts) {
+        posts[data.chat].lastPage[uuidv1()] = {user: data.user, post: data.post, date: data.date}
+        io.to(data.chat).emit('sendSucess', data)
         if (posts[data.chat].postLast > 30) {
-            updateChat(data.chat, posts[data.chat].lastPage, socket.lastPage)
+            updateChat(data.chat, posts[data.chat].lastPage, posts[data.chat].pages)
             posts[data.chat].postLast = 0
             posts[data.chat].lastPage = {}
+            posts[data.chat].pages ++
             await writeFile(filesrc[0], JSON.stringify(posts))
         }
         posts[data.chat].postLast ++
-        posts[data.chat].lastPage[uuidv4()] = {user: data.user, post: data.post, date: data.date}
-        io.to(data.chat).emit('sendSucess', data)
     } else socket.emit('alert', {ms: 'send error'})
 }
 function nextPage(socket, data) {
