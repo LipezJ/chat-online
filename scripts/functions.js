@@ -30,12 +30,16 @@ async function login(data, socket) {
 function singup(data, socket) {
     createUserWithEmailAndPassword(auth, data.email, data.pass)
     .then( async (userCredential) => {
-        if (addUser(data.user, socket.token)){
-            socket['token'] = userCredential.user.uid
-            sockets[socket.token] = socket.token
-            socket.emit('loginSucess', {user: data.user})
-            await writeFile(filesrc[1], JSON.stringify(sockets))
-        }
+        await addUser(data.user, userCredential.user.uid).then(async (sucess) => {
+            if (sucess) {
+                socket['token'] = userCredential.user.uid
+                sockets[socket.token] = socket.id
+                socket.emit('loginSucess', {user: data.user})
+                await writeFile(filesrc[1], JSON.stringify(sockets))
+            } else {
+                socket.emit('alert', {ms: 'create user error'})
+            }
+        })
     }).catch((err) => socket.emit('alert', {ms: err}))
 }
 function logout(socket) {
@@ -48,11 +52,12 @@ function logout(socket) {
     }
 }
 
-function createReq(data, socket) {
+async function createReq(data, socket) {
     if (data.chat.length > 5 && !(data.chat in posts) && socket.token) {
         posts[data.chat] = {lastPage:{}, postLast: 0, pages: 0}
-        createChat(data.chat)
-        joinReq(data, socket)
+        await createChat(data.chat).then(() => {
+            joinReq(data, socket)
+        })
     } else socket.emit('alert', {ms: 'create error'})
 }
 async function joinReq(data, socket) {
@@ -64,6 +69,7 @@ async function joinReq(data, socket) {
             socket.join(data.chat)
             socket['lastPage'] = chat.pages - 1
             let new_ = user.chats.indexOf(data.chat) < 0
+            console.log(user)
             let postSend = posts[data.chat].lastPage
             if (chat.pages > 0) {
                 await readChat(data.chat, chat.pages-1).then(page => {

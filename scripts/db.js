@@ -1,16 +1,16 @@
 import { db } from "./firebase/store.js"
-import { getDoc, setDoc, doc, updateDoc, increment, arrayUnion, query, where, collection, getDocs } from "firebase/firestore"
+import { getDoc, setDoc, doc, updateDoc, increment, arrayUnion, query, where, collection } from "firebase/firestore"
 
 // administar chats
 async function createChat(name, user) {
     try {
         const data = {
-            users: [user],
             pages: 0
         }
         await setDoc(doc(db, 'chats', name), {})
-        await setDoc(doc(db, 'chatInfo', name), {})
-        await updateDoc(doc(db, 'chatInfo', name), data)
+        await setDoc(doc(db, 'chatInfo', name), {}).then(async () => {
+            await updateDoc(doc(db, 'chatInfo', name), data)
+        })
     } catch (e) {
         console.log('error reading document: ', e)
     }
@@ -41,14 +41,14 @@ async function readChat(name, page) {
 //administrar usuarios
 async function addUser(user, uid) {
     try {
-        await updateDoc(doc(db, 'users', uid), {
+        await setDoc(doc(db, 'users', uid), {
             user,
             chats: ['global']
         })
         return true
     } catch (e) {
-        console.log('error updating document: ', e)
-        return null
+        console.log('error updating document (addUser): ', e)
+        return true
     }
 }
 async function addUserChat(user, chat) {
