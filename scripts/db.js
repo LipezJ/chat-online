@@ -4,12 +4,12 @@ import { getDoc, setDoc, doc, updateDoc, increment, arrayUnion, query, where, co
 // administar chats
 async function createChat(name, user) {
     try {
-        const data = {
-            pages: 0
-        }
         await setDoc(doc(db, 'chats', name), {})
         await setDoc(doc(db, 'chatInfo', name), {}).then(async () => {
-            await updateDoc(doc(db, 'chatInfo', name), data)
+            await updateDoc(doc(db, 'chatInfo', name), {
+                pages: 0,
+                users: []
+            })
         })
     } catch (e) {
         console.log('error reading document: ', e)
@@ -17,7 +17,6 @@ async function createChat(name, user) {
 }
 async function updateChat(name, lastPage, pages) {
     try {
-        console.log(pages)
         updateDoc(doc(db, 'chats', name), {
             [pages+'a']: lastPage
         })
@@ -31,7 +30,6 @@ async function updateChat(name, lastPage, pages) {
 async function readChat(name, page) {
     try {
         const query = await getDoc(doc(db, 'chats', name))
-        console.log(query.data()[page+'a'])
         return query.data()[page+'a']
     } catch (e) {
         console.log('error reading document (readChat): ', e)
@@ -51,19 +49,21 @@ async function addUser(user, uid) {
         return true
     }
 }
-async function addUserChat(user, chat) {
+async function addUserChat(user_, chat) {
     try {
-        const queryUser = query(collection(db, 'users'), where('chatInfo', 'array-contains', user))
-        if (queryUser) {
-            await updateDoc(doc(db, 'users', user), {
-                chats: arrayUnion(chat)
-            })
-            await updateDoc(doc(db, 'chatInfo', chat), {
-                users: arrayUnion(user)
-            })
+        const r = await readUser(user_).then(async user => {
+            if (!(chat in user.chats)) {
+                await updateDoc(doc(db, 'users', user_), {
+                    chats: arrayUnion(chat)
+                })
+                await updateDoc(doc(db, 'chatInfo', chat), {
+                    users: arrayUnion(user_)
+                })
+                return false
+            }
             return true
-        }
-        return null
+        })
+        return r
     } catch (e) {
         console.log('error updating document (addUserChat): ', e)
         return null

@@ -63,13 +63,11 @@ async function createReq(data, socket) {
 async function joinReq(data, socket) {
     socket.leaveAll()
     delete socket.lastPage
-    if (data.chat in posts && socket.token && addUserChat(socket.token, data.chat)) {
+    if (data.chat in posts && socket.token) {
         await readUserChat(socket.token, data.chat).then(async ({user, chat}) => {
-            if (!user) return null
+            if (!user || !chat) return null
             socket.join(data.chat)
             socket['lastPage'] = chat.pages - 1
-            let new_ = user.chats.indexOf(data.chat) < 0
-            console.log(user)
             let postSend = posts[data.chat].lastPage
             if (chat.pages > 0) {
                 await readChat(data.chat, chat.pages-1).then(page => {
@@ -77,8 +75,10 @@ async function joinReq(data, socket) {
                     socket.lastPage --
                 })
             }
-            socket.emit('joinSucess', {posts: postSend, chat: data.chat, new: new_})
-            await writeFile(filesrc[1], JSON.stringify(sockets))
+            await addUserChat(socket.token, data.chat).then(async new_ => {
+                socket.emit('joinSucess', {posts: postSend, chat: data.chat, new: new_})
+                await writeFile(filesrc[1], JSON.stringify(sockets))
+            })
         })
     } else socket.emit('alert', {ms: 'join error'})
 }
